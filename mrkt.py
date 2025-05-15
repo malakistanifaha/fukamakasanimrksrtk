@@ -115,39 +115,55 @@ if machine_code in hash_values_list:
                     "referer": "https://cdn.tgmrkt.io/",
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0"
                 }
-                premium_channels = []
+                response = requests.get(url=f"https://api.tgmrkt.io/api/v1/giveaways/{giveaway_id}", headers=headers, timeout=10)
+                data = json.loads(response.text)
+                gift_names = [gift['name'] for gift in data.get("gifts", [])]
+                participants_count = data.get("participantsCount")
+                my_tickets_count = data.get("myTicketsCount")
+                print(f"\033[97m O'YNALAYOTGAN GIFT NOMLARI:\033[0m")
+                for name in gift_names:
+                    print(f"\033[97m- {name}\033[0m")
+                print(f"\033[97m Ishtirokchilar soni: {participants_count}\033[0m")
+                print(f"\033[97m Mening chiptalarim soni: {my_tickets_count}\033[0m")
+
                 
-                response = requests.get(url=f"https://api.tgmrkt.io/api/v1/giveaways/check-validations/{giveaway_id}", headers=headers, timeout=10)
-                data = response.json()
-                validations = data.get("channelValidations", [])
-                for item in validations:
-                    channel = item.get("channel")
-                    if channel:
-                        premium_channels.append(channel)
-                for ochiq_link in premium_channels:
-                    try:
-                        await client(JoinChannelRequest(ochiq_link)) 
-                        print(color(f"Kanalga a'zo bo'ldi {ochiq_link}", "92"))  # yashil
-                    except Exception as e:
-                        print(color(f"Kanalga qo'shilishda xatolik {ochiq_link}: {e}", "91"))  # qizil
-                birinchi = premium_channels[0] if premium_channels else None
-                params = {
-                    "channel": birinchi,
-                    "type": "ChannelMember"
-                }
-                response = requests.post(url=f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}", params=params, headers=headers, timeout=10)
-                params = {
-                    "count": 1
-                }
-                response = requests.post(url=f"https://api.tgmrkt.io/api/v1/giveaways/buy-tickets/{giveaway_id}", params=params, headers=headers, timeout=10)
-                try:
+                if my_tickets_count > 0:
+                    print(color("GIVEAWAYGA OLDIN QATNASHAN EKAN", "92"))  # yashil
+                else:
+                    print(color("GIVEAWAYA QO'SHILISHNI BOSHLADIM", "95"))  # magenta
+                    premium_channels = []
+                    
+                    response = requests.get(url=f"https://api.tgmrkt.io/api/v1/giveaways/check-validations/{giveaway_id}", headers=headers, timeout=10)
                     data = response.json()
-                    if isinstance(data, list) and data:
-                        print(color("GIVEAWAYGA MUVAFFAQIYATLI QATNASHDI", "92"))  # yashil
-                    else:
-                        print(color("GIVEAWAYA OLDIN QATNASHGAN QATNASHMAGAN BOSA XORAMI KANALI BAN BERAYABDI", "93")) 
-                except Exception as e:
-                    print(color("Pizdes sorob yubotishda xatolik", "91"))  # qizil
+                    validations = data.get("channelValidations", [])
+                    for item in validations:
+                        channel = item.get("channel")
+                        if channel:
+                            premium_channels.append(channel)
+                    for ochiq_link in premium_channels:
+                        try:
+                            await client(JoinChannelRequest(ochiq_link)) 
+                            print(color(f"Kanalga a'zo bo'ldi {ochiq_link}", "92"))  # yashil
+                        except Exception as e:
+                            print(color(f"Kanalga qo'shilishda xatolik {ochiq_link}: {e}", "91"))  # qizil
+                    birinchi = premium_channels[0] if premium_channels else None
+                    params = {
+                        "channel": birinchi,
+                        "type": "ChannelMember"
+                    }
+                    response = requests.post(url=f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}", params=params, headers=headers, timeout=10)
+                    params = {
+                        "count": 1
+                    }
+                    response = requests.post(url=f"https://api.tgmrkt.io/api/v1/giveaways/buy-tickets/{giveaway_id}", params=params, headers=headers, timeout=10)
+                    try:
+                        data = response.json()
+                        if isinstance(data, list) and data:
+                            print(color("GIVEAWAYGA MUVAFFAQIYATLI QATNASHDI", "92"))  # yashil
+                        else:
+                            print(color("GIVEAWAYA OLDIN QATNASHGAN QATNASHMAGAN BOSA XORAMI KANALI BAN BERAYABDI", "93")) 
+                    except Exception as e:
+                        print(color("Pizdes sorob yubotishda xatolik", "91"))  # qizil
             with client:
                 client.loop.run_until_complete(main())
         except Exception as e:

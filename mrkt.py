@@ -38,7 +38,7 @@ if machine_code in hash_values_list:
     from telethon.tl.functions.messages import RequestAppWebViewRequest
     from telethon.tl.types import InputBotAppShortName
     import requests
-    print(color("Oxirgi kod yanilangan vaqti 15.05.2025 9:10 PM", "95"))  # magenta
+    print(color("Oxirgi kod yanilangan vaqti 15.05.2025 9:39 PM", "95"))  # magenta
     phonecsv = "phone"
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]

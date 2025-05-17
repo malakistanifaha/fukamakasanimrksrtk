@@ -38,7 +38,7 @@ if machine_code in hash_values_list:
     from telethon.tl.functions.messages import RequestAppWebViewRequest
     from telethon.tl.types import InputBotAppShortName
     import requests
-    print(color("Oxirgi kod yanilangan vaqti 15.05.2025 9:39 PM", "95"))  # magenta
+    print(color("Oxirgi kod yanilangan vaqti 17.05.2025 8:28 PM", "95"))  # magenta
     phonecsv = "phone"
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
@@ -131,7 +131,10 @@ if machine_code in hash_values_list:
                     print(color("GIVEAWAYGA OLDIN QATNASHAN EKAN", "92"))  # yashil
                 else:
                     print(color("GIVEAWAYA QO'SHILISHNI BOSHLADIM", "95"))  # magenta
+                    
+                    
                     premium_channels = []
+                    
                     
                     response = requests.get(url=f"https://api.tgmrkt.io/api/v1/giveaways/check-validations/{giveaway_id}", headers=headers, timeout=10)
                     data = response.json()
@@ -146,11 +149,17 @@ if machine_code in hash_values_list:
                             print(color(f"Kanalga a'zo bo'ldi {ochiq_link}", "92"))  # yashil
                         except Exception as e:
                             print(color(f"Kanalga qo'shilishda xatolik {ochiq_link}: {e}", "91"))  # qizil
-                    birinchi = premium_channels[0] if premium_channels else None
-                    params = {
-                        "channel": birinchi,
-                        "type": "ChannelMember"
-                    }
+                    for channel in premium_channels:
+                        params = {
+                            "channel": channel,
+                            "type": "ChannelMember"
+                        }
+                        response = requests.post(
+                            url=f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}",
+                            params=params,
+                            headers=headers,
+                            timeout=10
+                        )
                     response = requests.post(url=f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}", params=params, headers=headers, timeout=10)
                     params = {
                         "count": 1

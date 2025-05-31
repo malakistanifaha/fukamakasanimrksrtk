@@ -139,7 +139,7 @@ async def process_account(phone, index):
         print(colored(f"[{index}] Xatolik: {e}", "red"))
 
 async def main():
-    batch_size = 10
+    batch_size = 5
     tasks = []
     for idx, phone in enumerate(phones, 1):
         tasks.append(process_account(phone, idx))

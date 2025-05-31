@@ -34,6 +34,7 @@ if machine_code in hash_values_list:
     import time
 
     print(color("Oxirgi kod yangilangan vaqti 15.05.2025 9:10 PM", "95"))
+    print(color("Ozim.csv yaratilib faqat 1 ta raqam yozilad", "95"))
     sont = int(input("Nechta giveaway qidirsin: "))
     phonecsv = "ozim"
     

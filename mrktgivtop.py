@@ -126,7 +126,7 @@ if machine_code in hash_values_list:
 
                 all_items.sort(key=lambda x: x.get("endAt", ""))
 
-                with open("mrktgivlar.txt", "w", encoding="utf-8") as fout:
+                with open("mrktgivlar.csv", "w", encoding="utf-8") as fout:
                     print(f"\n🎯 Topilgan jami mos giftlar: {len(all_items)} ta\n")
 
                     for i, item in enumerate(all_items, start=1):

@@ -166,8 +166,11 @@ if machine_code in hash_values_list:
                 criteria = data.get("data", {}).get("eligibilityCriteria", {})
                 print(Fore.CYAN + '📋 Talablar: ' + Fore.WHITE + str(criteria))
 
-                chats = data.get("data", {}).get("otherChats", []) + [data.get("data", {}).get("chat")]
-                for chat in chats:
+                chat = data["data"]["chat"]
+                otherchats = data["data"]["otherChatIds"]
+                
+                premium_channels = [chat] + otherchats
+                for chat in premium_channels:
                     await tg_client(JoinChannelRequest(chat))
                     print(Fore.BLUE + "➕ Kanalga qo'shilayabman: " + Fore.WHITE + str(chat))
 
@@ -181,7 +184,7 @@ if machine_code in hash_values_list:
                 json_data = {
                     "authData": init_data,
                     "giveAwayId": giveaway_code,
-                    "timestamp": timestamp,
+                    "timestamp": timestamp, 
                     "wtf": wtf
                 }
 

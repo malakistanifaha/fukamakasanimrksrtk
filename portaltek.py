@@ -26,7 +26,7 @@ if machine_code in hash_values_list:
     from datetime import datetime
     import pytz
 
-    phonecsv = "ozim"
+    phonecsv = "phone"
     ovoz_berildi = []
     ovoz_berilamadi = []
 

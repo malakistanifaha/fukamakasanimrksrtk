@@ -97,11 +97,8 @@ if machine_code in hash_values_list:
                 for giv_index, (giveaway_code, group_size_str) in enumerate(giv_ids_ozim):
                     group_size = int(group_size_str)
                     acc_idx = indexx + 1
+                    current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
 
-                    if acc_idx % group_size == 0:
-                        current_inviter_id = inviter_id_by_giveaway.get(giv_index, "")
-                    else:
-                        current_inviter_id = ""
                     bot_entity = await client.get_entity("@giftsgiveawaybot")
                     bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
                     bot_app = InputBotAppShortName(bot_id=bot, short_name="start")

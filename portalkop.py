@@ -72,8 +72,8 @@ if machine_code in hash_values_list:
         reader = csv.reader(f)
         giv_ids_ozim = [row for row in reader if row]
         
-    file_path_1 = r"C:\join\proxyglob.csv"
-    file_path_2 = r"/storage/emulated/0/giv/proxyglob.csv"
+    file_path_1 = r"C:\join\proxy.csv"
+    file_path_2 = r"/storage/emulated/0/giv/proxy.csv"
 
     if os.path.exists(file_path_1):
         with open(file_path_1, 'r') as f:

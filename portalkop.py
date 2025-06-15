@@ -72,8 +72,8 @@ if machine_code in hash_values_list:
         reader = csv.reader(f)
         giv_ids_ozim = [row for row in reader if row]
         
-    file_path_1 = r"C:\join\proxy.csv"
-    file_path_2 = r"/storage/emulated/0/giv/proxy.csv"
+    file_path_1 = r"C:\join\proxyglob.csv"
+    file_path_2 = r"/storage/emulated/0/giv/proxyglob.csv"
 
     if os.path.exists(file_path_1):
         with open(file_path_1, 'r') as f:
@@ -115,7 +115,11 @@ if machine_code in hash_values_list:
                 for giv_index, (giveaway_code, group_size_str) in enumerate(giv_ids_ozim):
                     group_size = int(group_size_str)
                     acc_idx = indexx + 1
-                    current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
+
+                    if acc_idx % group_size == 0:
+                        current_inviter_id = inviter_id_by_giveaway.get(giv_index, "")
+                    else:
+                        current_inviter_id = ""
 
                     bot_entity = await client.get_entity("@giftsgiveawaybot")
                     bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
@@ -161,6 +165,14 @@ if machine_code in hash_values_list:
                         print(color("📌 Ishtirokchilar soni:", "cyan"), result["participants"])
                         print(color("📋 Vazifalar:", "blue"))
                         premium_channels = [task["value"] for task in result["tasks"] if task["value"]]
+                        for ch in premium_channels:
+                            print("-", ch)
+                            try:
+                                await client(JoinChannelRequest(ch))
+                                print(color(f"Kanalga a'zo bo'ldi {ch}", "green"))
+                            except Exception as e:
+                                print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
+                        time.sleep(2)
                         for ch in premium_channels:
                             print("-", ch)
                             try:

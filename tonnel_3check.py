@@ -25,6 +25,9 @@ machine_code = GetMachineCode()
 print(machine_code)
 
 # Mashina kodini tekshirish
+# ... (importlar va CSV hash tekshiruv qismi o‘zgarmaydi)
+
+# Mashina kodini tekshirish
 if machine_code in hash_values_list:
     import os
     import time
@@ -46,7 +49,6 @@ if machine_code in hash_values_list:
     import sys
     init(autoreset=True)
 
-
     def evp_kdf(password: bytes, salt: bytes, key_len: int, iv_len: int):
         dtot = b""
         d = b""
@@ -54,7 +56,6 @@ if machine_code in hash_values_list:
             d = MD5.new(d + password + salt).digest()
             dtot += d
         return dtot[:key_len], dtot[key_len:key_len + iv_len]
-
 
     def encrypt_timestamp(timestamp, secret_key):
         text = str(timestamp)
@@ -69,7 +70,6 @@ if machine_code in hash_values_list:
         encrypted_data = b"Salted__" + salt + encrypted
 
         return base64.b64encode(encrypted_data).decode('utf-8')
-
 
     async def main():
         def ensure_path_and_file(path, filename):
@@ -91,16 +91,18 @@ if machine_code in hash_values_list:
         if os.path.exists('/storage/emulated/0/giv'):
             print(Fore.YELLOW + "Telefon uchun papka aniqlandi")
             mrkt_file = ensure_path_and_file('/storage/emulated/0/giv', 'tonnelgivlar.csv')
-            giveaway_codes = [row[0] for row in csv.reader(open(mrkt_file, 'r', encoding='utf-8')) if row]
         elif os.path.exists('C:\\join'):
-            print(Fore.YELLOW + "Kompyuer uchun papka aniqlandi")
+            print(Fore.YELLOW + "Kompyuter uchun papka aniqlandi")
             mrkt_file = ensure_path_and_file('C:\\join', 'tonnelgivlar.csv')
-            giveaway_codes = [row[0] for row in csv.reader(open(mrkt_file, 'r', encoding='utf-8')) if row]
         else:
-            print(Fore.YELLOW + "Hech qanday mos papka topilamadi (telefonda storage/0  da giv papka yarating) Kompda esa (C/ diskda join papka)")
+            print(Fore.YELLOW + "Mos papka topilmadi (telefonda: /storage/emulated/0/giv | kompyuterda: C:\\join)")
+            return
+
+        giveaway_codes = [row[0] for row in csv.reader(open(mrkt_file, 'r', encoding='utf-8')) if row]
+
         with open('phone.csv', 'r') as f:
             phlist = [row[0] for row in csv.reader(f)]
-        
+
         for indexx, deltaxd in enumerate(phlist):
             print("🏳️‍🌈")
             print(Fore.CYAN + f"📲 Login: " + Fore.WHITE + deltaxd)
@@ -111,13 +113,12 @@ if machine_code in hash_values_list:
             tg_client = TelegramClient(f"sessions/{phone}", api_id, api_hash)
             secret_key = "yowtfisthispieceofshitiiit"
             try:
-                await process(tg_client)
+                await process(tg_client, deltaxd)
                 await asyncio.sleep(2.5)
             except Exception as e:
                 print(Fore.RED + "❌ Xatolik yuz berdi (" + Fore.WHITE + f"{deltaxd}" + Fore.RED + f"): {e}")
 
-
-    async def process(tg_client: TelegramClient):
+    async def process(tg_client: TelegramClient, phone_number: str):
         async with tg_client:
             await tg_client(UpdateStatusRequest(offline=False))
             bot_entity = await tg_client.get_entity("tonnel_network_bot")
@@ -165,31 +166,26 @@ if machine_code in hash_values_list:
                     "price": {"$exists": False}
                 }
 
-                # sort — hozircha o‘zgartirmaymiz, u string ko‘rinishda beriladi
                 sort_obj = {
                     "gift_num": 1,
                     "gift_id": -1
                 }
 
-                # user_auth — bu oldindan olingan string bo'lishi kerak
-                # masalan: user_auth = update.web_app_data.data  yoki sening `init_data`
                 user_auth = init_data
-
-                # Payload tayyorlash (hammasi string shaklida bo‘lishi kerak!)
                 psondata = {
                     "page": 1,
                     "limit": 30,
-                    "sort": json.dumps(sort_obj),       # string shaklida yuboriladi
-                    "filter": json.dumps(filter_obj),   # string shaklida yuboriladi
+                    "sort": json.dumps(sort_obj),
+                    "filter": json.dumps(filter_obj),
                     "ref": f"ref_{iduser}",
                     "user_auth": user_auth
                 }
-                    
+
                 response = http_client.post(url="https://gifts2.tonnel.network/api/pageGifts", json=psondata, headers=headers, timeout=10)
                 if response.ok:
                     gifts = response.json()
                     sorted_gifts = sorted(gifts, key=lambda x: x['gift_num'])
-                    # Har birini chiqarish
+
                     for gift in sorted_gifts:
                         print(f"Name: {gift['name']}")
                         print(f"Model: {gift['model']}")
@@ -197,13 +193,21 @@ if machine_code in hash_values_list:
                         print(f"Backdrop: {gift['backdrop']}")
                         print("-" * 30)
 
-                    # Umumiy soni
+                        with open("tonnelichida.csv", "a", encoding="utf-8", newline="") as f:
+                            writer = csv.writer(f)
+                            writer.writerow([
+                                phone_number,
+                                gift.get("name", ""),
+                                gift.get("model", ""),
+                                gift.get("symbol", ""),
+                                gift.get("backdrop", "")
+                            ])
+
                     print(f"Jami giftlar soni: {len(gifts)}")
                 else:
                     print("Xatolik:", response.status_code, response.text)
 
-
     if __name__ == "__main__":
         asyncio.run(main())
 else:
-    print(color("Kodni aktivlashtirish uchun @Enshteyn40  ga murojat qiling", "95"))  # magenta
+    print(color("Kodni aktivlashtirish uchun @Enshteyn40  ga murojat qiling", "95"))

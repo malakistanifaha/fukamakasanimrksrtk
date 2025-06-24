@@ -144,8 +144,8 @@ if machine_code in hash_values_list:
                         print(color("❌ Giveawayda hali qatnashmagan", "red"))
                         print(color("📌 Ishtirokchilar soni:", "cyan"), result["participants"])
                         print(color("📋 Vazifalar:", "blue"))
-                        premium_channels = [task["value"] for task in result["tasks"] if task["value"]]
-                        for ch in premium_channels:
+                        joined_channels = [task.get("value") for task in result["tasks"] if task.get("type") in [1, 4]]
+                        for ch in joined_channels:
                             print("-", ch)
                             try:
                                 await client(JoinChannelRequest(ch))

@@ -15,7 +15,7 @@ from telethon.tl.types import InputUser
 from telethon.tl.functions.messages import RequestAppWebViewRequest
 from telethon.tl.types import InputBotAppShortName
 from datetime import datetime, timezone, timedelta
-
+import asyncio
 def color(text, color_code):
     color_map = {
         "red": "91",
@@ -153,10 +153,20 @@ if machine_code in hash_values_list:
                             except Exception as e:
                                 print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
                         time.sleep(2.5)
-                        if any(t.get("type") == 5 for t in result.get("tasks", [])):
-                            print("Ochiladigan linklar")
-                            url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/5/view"
-                            response = requests.post(url=url, json=jsondata, headers=headers, timeout=10)
+                        tasks = result.get("tasks", [])
+                        type5_tasks = [t for t in tasks if t.get("type") == 5]
+                        if type5_tasks:
+                            print("Ochiladigan linklar:")
+                            for t in type5_tasks:
+                                task_id = t.get("id")
+                                url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/{task_id}/view"
+                                response = requests.post(url=url, json=jsondata, headers=headers, timeout=10)
+
+                                if response.ok:
+                                    print(f"✅ Task ID {task_id} uchun bajarildi")
+                                else:
+                                    print(f"❌ Task ID {task_id} uchun xatolik: {response.status_code} - {response.text}")
+                                await asyncio.sleep(2.5)
 
                         response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, timeout=10)
                         if response.status_code == 200:

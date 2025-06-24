@@ -169,13 +169,6 @@ if machine_code in hash_values_list:
                             except Exception as e:
                                 print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
                         time.sleep(2)
-                        for ch in premium_channels:
-                            print("-", ch)
-                            try:
-                                await client(JoinChannelRequest(ch))
-                                print(color(f"Kanalga a'zo bo'ldi {ch}", "green"))
-                            except Exception as e:
-                                print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
                         response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, proxies=proxies, timeout=10)
                         if response.status_code == 200:
                             completion = response.json()

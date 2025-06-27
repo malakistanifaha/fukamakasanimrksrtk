@@ -93,7 +93,7 @@ if machine_code in hash_values_list:
 
     print(color("Oxirgi kod yanilangan vaqti 14.06.2025 04:09 PM", "magenta"))
 
-    phonecsv = "ozim1"
+    phonecsv = "ozim"
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
     print(color(f'Spam bo\'lmagan raqamlar: {len(phlist)}', "yellow"))

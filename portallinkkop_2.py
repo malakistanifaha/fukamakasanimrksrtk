@@ -56,7 +56,7 @@ if machine_code in hash_values_list:
         "http": ROTATED_PROXY,
         "https": ROTATED_PROXY
     }
-    print(color("Oxirgi kod yanilangan vaqti 24.06.2025 04:09 PM", "magenta"))
+    print(color("Oxirgi kod yanilangan vaqti 27.06.2025 03:57 PM", "magenta"))
 
     def ensure_path_and_file(path, filename):
         if not os.path.exists(path):
@@ -103,99 +103,103 @@ if machine_code in hash_values_list:
             client.start(phone)
             client(UpdateStatusRequest(offline=False))
             me = client.get_me()
-            
+
             print(color(f'Index: {indexx + 1}', "blue"))
             print()
 
             async def main():
                 for giv_index, (giveaway_code, group_size_str) in enumerate(giv_ids_ozim):
-                    group_size = int(group_size_str)
-                    acc_idx = indexx + 1
-                    current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
+                    try:
+                        group_size = int(group_size_str)
+                        acc_idx = indexx + 1
+                        current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
 
-                    bot_entity = await client.get_entity("@giftsgiveawaybot")
-                    bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
-                    bot_app = InputBotAppShortName(bot_id=bot, short_name="start")
-                    web_view = await client(RequestAppWebViewRequest(
-                        peer=bot,
-                        app=bot_app,
-                        platform="android",
-                        write_allowed=True,
-                        start_param=giveaway_code
-                    ))
-                    auth_url = web_view.url.replace('tgWebAppVersion=7.0', 'tgWebAppVersion=8.0')
-                    init_data = unquote(auth_url.split('tgWebAppData=', 1)[1].split('&tgWebAppVersion', 1)[0])
+                        bot_entity = await client.get_entity("@giftsgiveawaybot")
+                        bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
+                        bot_app = InputBotAppShortName(bot_id=bot, short_name="start")
+                        web_view = await client(RequestAppWebViewRequest(
+                            peer=bot,
+                            app=bot_app,
+                            platform="android",
+                            write_allowed=True,
+                            start_param=giveaway_code
+                        ))
+                        auth_url = web_view.url.replace('tgWebAppVersion=7.0', 'tgWebAppVersion=8.0')
+                        init_data = unquote(auth_url.split('tgWebAppData=', 1)[1].split('&tgWebAppVersion', 1)[0])
 
-                    headers = {
-                        "Content-Type": "application/json",
-                        "Origin": "https://giftaway.org",
-                        "Referer": "https://giftaway.org/",
-                        "User-Agent": "Mozilla/5.0"
-                    }
-                    jsondata = {
-                        "init_data": init_data,
-                        "inviter_id": current_inviter_id
-                    }
-                    response = requests.post(url="https://api.giftaway.org/api/auth", json=jsondata,  proxies=proxies, headers=headers, timeout=10)
-                    time.sleep(2.5)
-                    jwt_token = response.json()["result"]["jwt"]
+                        headers = {
+                            "Content-Type": "application/json",
+                            "Origin": "https://giftaway.org",
+                            "Referer": "https://giftaway.org/",
+                            "User-Agent": "Mozilla/5.0"
+                        }
+                        jsondata = {
+                            "init_data": init_data,
+                            "inviter_id": current_inviter_id
+                        }
 
-                    headers["Authorization"] = f"Bearer {jwt_token}"
-                    time.sleep(2.5)
-                    response = requests.get(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}",   proxies=proxies, headers=headers, timeout=10)
-                    result = response.json()["result"]
+                        response = requests.post(url="https://api.giftaway.org/api/auth", json=jsondata, proxies=proxies, headers=headers, timeout=10)
+                        jwt_token = response.json()["result"]["jwt"]
+                        await asyncio.sleep(0.1)
 
-                    if result.get("is_completed", False):
-                        print(color("✅ Allaqachon ushbu giveawayda qatnashgan", "green"))
-                        dt = datetime.fromisoformat(result["ending_at"]).astimezone(timezone(timedelta(hours=5)))
-                        print(color("⏳ Tugash vaqti:", "blue"), dt.strftime("%d.%m.%Y %H:%M"))
-                        print(color("🎟 Tiketlar soni:", "magenta"), result["my_tickets"])
-                        print(color("🎁 Sovg'alar nomlari:", "yellow"))
-                        for gift in result["gifts"]:
-                            print("-", gift["name"])
-                        print(color("➡️ Keyingi giveawayga yoki raqamga o'tamiz", "bold_white"))
-                    else:
-                        print(color("❌ Giveawayda hali qatnashmagan", "red"))
-                        print(color("📌 Ishtirokchilar soni:", "cyan"), result["participants"])
-                        print(color("📋 Vazifalar:", "blue"))
-                        joined_channels = [task.get("value") for task in result["tasks"] if task.get("type") in [1, 4]]
-                        for ch in joined_channels:
-                            print("-", ch)
-                            try:
-                                await client(JoinChannelRequest(ch))
-                                await asyncio.sleep(1)
-                                print(color(f"Kanalga a'zo bo'ldi {ch}", "green"))
-                            except Exception as e:
-                                print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
-                        tasks = result.get("tasks", [])
-                        type5_tasks = [t for t in tasks if t.get("type") == 5]
-                        if type5_tasks:
-                            print("Ochiladigan linklar:")
-                            for t in type5_tasks:
-                                task_id = t.get("id")
-                                url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/{task_id}/view"
-                                response = requests.post(url=url, json=jsondata, proxies=proxies, headers=headers, timeout=10)
+                        headers["Authorization"] = f"Bearer {jwt_token}"
+                        response = requests.get(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}", proxies=proxies, headers=headers, timeout=10)
+                        result = response.json()["result"]
+                        await asyncio.sleep(0.1)
 
-                                if response.ok:
-                                    print(f"✅ Task ID {task_id} uchun bajarildi")
-                                else:
-                                    print(f"❌ Task ID {task_id} uchun xatolik: {response.status_code} - {response.text}")
-                                await asyncio.sleep(1)
-
-                        response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete",  proxies=proxies, headers=headers, timeout=10)
-                        if response.status_code == 200:
-                            completion = response.json()
-                            if completion.get("result", {}).get("completed", False):
-                                print(color("✅ Giveawayga qatnashdi", "green"))
-                            else:
-                                print(color("❌ Giveawayga qatnasha olmadi", "red"))
+                        if result.get("is_completed", False):
+                            print(color("✅ Allaqachon ushbu giveawayda qatnashgan", "green"))
+                            dt = datetime.fromisoformat(result["ending_at"]).astimezone(timezone(timedelta(hours=5)))
+                            print(color("⏳ Tugash vaqti:", "blue"), dt.strftime("%d.%m.%Y %H:%M"))
+                            print(color("🎟 Tiketlar soni:", "magenta"), result["my_tickets"])
+                            print(color("🎁 Sovg'alar nomlari:", "yellow"))
+                            for gift in result["gifts"]:
+                                print("-", gift["name"])
+                            print(color("➡️ Keyingi giveawayga o'tamiz", "bold_white"))
                         else:
-                            print(color(f"❌ So‘rov xatolik bilan tugadi: {response.status_code}", "red"))
+                            print(color("❌ Giveawayda hali qatnashmagan", "red"))
+                            print(color("📌 Ishtirokchilar soni:", "cyan"), result["participants"])
+                            print(color("📋 Vazifalar:", "blue"))
+                            joined_channels = [task.get("value") for task in result["tasks"] if task.get("type") in [1, 4]]
+                            for ch in joined_channels:
+                                print("-", ch)
+                                try:
+                                    await client(JoinChannelRequest(ch))
+                                    print(color(f"Kanalga a'zo bo'ldi {ch}", "green"))
+                                except Exception as e:
+                                    print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
+                            tasks = result.get("tasks", [])
+                            type5_tasks = [t for t in tasks if t.get("type") == 5]
+                            if type5_tasks:
+                                print("Ochiladigan linklar:")
+                                for t in type5_tasks:
+                                    task_id = t.get("id")
+                                    await asyncio.sleep(0.1)
+                                    url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/{task_id}/view"
+                                    response = requests.post(url=url, json=jsondata, proxies=proxies, headers=headers, timeout=10)
 
-                    if (acc_idx) % group_size == 0:
-                        inviter_id_by_giveaway[giv_index] = me.id
-                        print(color(f"🆕 Ushbu giveaway uchun yangi ref ID olindi: {me.id} (CSVdagi {giv_index + 1}-qatordagi giveaway)", "cyan"))
+                                    if response.ok:
+                                        print(f"✅ Task ID {task_id} uchun bajarildi")
+                                    else:
+                                        print(f"❌ Task ID {task_id} uchun xatolik: {response.status_code} - {response.text}")
+                                    await asyncio.sleep(0.1)
 
+                            response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, proxies=proxies, timeout=10)
+                            if response.status_code == 200:
+                                completion = response.json()
+                                if completion.get("result", {}).get("completed", False):
+                                    print(color("✅ Giveawayga qatnashdi", "green"))
+                                else:
+                                    print(color("❌ Giveawayga qatnasha olmadi", "red"))
+                            else:
+                                print(color(f"❌ So‘rov xatolik bilan tugadi: {response.status_code}", "red"))
+
+                        if (acc_idx) % group_size == 0:
+                            inviter_id_by_giveaway[giv_index] = me.id
+                            print(color(f"🆕 Yangi ref ID olindi: {me.id} (CSVdagi {giv_index + 1}-qatordagi giveaway)", "cyan"))
+                    except Exception as e:
+                        print(color(f"❌ Giv ID '{giveaway_code}' uchun xatolik: {e}", "red"))
+                        continue
             with client:
                 client.loop.run_until_complete(main())
         except Exception as e:

@@ -44,8 +44,8 @@ if machine_code in hash_values_list:
     from colorama import Fore, Style, init
     import sys
     init(autoreset=True)
-    file_path_1 = r"C:\\join\\proxyglob.csv"
-    file_path_2 = r"/storage/emulated/0/giv/proxyglob.csv"
+    file_path_1 = r"C:\\join\\proxy.csv"
+    file_path_2 = r"/storage/emulated/0/giv/proxy.csv"
     if os.path.exists(file_path_1):
         with open(file_path_1, 'r') as f:
             ROTATED_PROXY = next(csv.reader(f))[0]

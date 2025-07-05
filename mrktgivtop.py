@@ -40,7 +40,7 @@ if machine_code in hash_values_list:
     boost_input = input("Channel boost kerakmi? (ha/yoq): ").strip().lower()
     trader_input = input("Active traders uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     sont = int(input("Nechta giveaway qidirsin: "))
-    phonecsv = "ozim"
+    phonecsv = "ozim1"
     
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
@@ -116,41 +116,57 @@ if machine_code in hash_values_list:
                     data = response.json()
                     items = data.get("items", [])
 
-                    all_items = []
-                    # JSON dan ma’lumot olish
-                    data = response.json()
-                    items = data.get("items", [])
+                    all_items = []  # ← bu while dan oldin bo‘ladi
+                    cursor = ""
 
-                    for item in items:
-                        is_premium = item.get("isForPremium", False)
-                        is_boost = item.get("isChanelBoostRequired", False)
-                        is_trader = item.get("isForActiveTraders", False)
+                    while len(all_items) < sont:
+                        params = {
+                            "type": "Free",
+                            "count": 20,
+                            "cursor": cursor
+                        }
 
-                        # agar tekin (3 ta ham False) kerak bo‘lsa, shuni tekshir
-                        if free_only_input == "ha":
-                            if not is_premium and not is_boost and not is_trader:
+                        response = requests.get(base_url, headers=headers, params=params)
+                        if response.status_code != 200:
+                            print(f"❌ Xatolik: {response.status_code}")
+                            break
+
+                        data = response.json()
+                        items = data.get("items", [])
+
+                        # bu yerni olib tashlang:
+                        # all_items = []
+
+                        for item in items:
+                            is_premium = item.get("isForPremium", False)
+                            is_boost = item.get("isChanelBoostRequired", False)
+                            is_trader = item.get("isForActiveTraders", False)
+
+                            # faqat tekin kerak bo‘lsa
+                            if free_only_input == "ha":
+                                if not is_premium and not is_boost and not is_trader:
+                                    all_items.append(item)
+                                continue
+
+                            # boshqa shartlar
+                            if (
+                                (premium_input == "ha" and is_premium) or (premium_input == "yoq" and not is_premium)
+                            ) and (
+                                (boost_input == "ha" and is_boost) or (boost_input == "yoq" and not is_boost)
+                            ) and (
+                                (trader_input == "ha" and is_trader) or (trader_input == "yoq" and not is_trader)
+                            ):
                                 all_items.append(item)
-                            continue  # shu itemni tekshirib bo‘ldi, boshqa shartlar kerak emas
 
-                        # agar tekin kerak emas bo‘lsa, qolgan 3 shartni tekshir
-                        if (
-                            (premium_input == "ha" and is_premium) or (premium_input == "yoq" and not is_premium)
-                        ) and (
-                            (boost_input == "ha" and is_boost) or (boost_input == "yoq" and not is_boost)
-                        ) and (
-                            (trader_input == "ha" and is_trader) or (trader_input == "yoq" and not is_trader)
-                        ):
-                            all_items.append(item)
+                        print(f"🔄 {len(all_items)} ta mos keluvchi gift yig‘ildi...")
 
-                    print(f"🔄 {len(all_items)} ta mos keluvchi gift yig‘ildi...")
+                        cursor = data.get("nextCursor", "")
+                        if not cursor:
+                            print("✅ Barcha sahifalar tugadi.")
+                            break
 
-                    cursor = data.get("nextCursor", "")
-                    if not cursor:
-                        print("✅ Barcha sahifalar tugadi.")
-                        break
+                        time.sleep(0.3)
 
-
-                    time.sleep(0.3)
 
                 all_items.sort(key=lambda x: x.get("endAt", ""))
 

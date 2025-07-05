@@ -33,8 +33,12 @@ if machine_code in hash_values_list:
     from telethon.tl.types import InputBotAppShortName
     import time
 
-    print(color("Oxirgi kod yangilangan vaqti 15.05.2025 9:10 PM", "95"))
+    print(color("Oxirgi kod yangilangan vaqti 07.06.2025 9:10 PM", "95"))
     print(color("Ozim.csv yaratilib faqat 1 ta raqam yozilad", "95"))
+    free_only_input = input("Faqat tekin giftlarni topaymi? (ha/yoq): ").strip().lower()
+    premium_input = input("Premium uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
+    boost_input = input("Channel boost kerakmi? (ha/yoq): ").strip().lower()
+    trader_input = input("Active traders uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     sont = int(input("Nechta giveaway qidirsin: "))
     phonecsv = "ozim"
     
@@ -112,15 +116,39 @@ if machine_code in hash_values_list:
                     data = response.json()
                     items = data.get("items", [])
 
+                    all_items = []
+                    # JSON dan ma’lumot olish
+                    data = response.json()
+                    items = data.get("items", [])
+
                     for item in items:
-                        if not item.get("isChanelBoostRequired") and not item.get("isForPremium") and not item.get("isForActiveTraders"):
+                        is_premium = item.get("isForPremium", False)
+                        is_boost = item.get("isChanelBoostRequired", False)
+                        is_trader = item.get("isForActiveTraders", False)
+
+                        # agar tekin (3 ta ham False) kerak bo‘lsa, shuni tekshir
+                        if free_only_input == "ha":
+                            if not is_premium and not is_boost and not is_trader:
+                                all_items.append(item)
+                            continue  # shu itemni tekshirib bo‘ldi, boshqa shartlar kerak emas
+
+                        # agar tekin kerak emas bo‘lsa, qolgan 3 shartni tekshir
+                        if (
+                            (premium_input == "ha" and is_premium) or (premium_input == "yoq" and not is_premium)
+                        ) and (
+                            (boost_input == "ha" and is_boost) or (boost_input == "yoq" and not is_boost)
+                        ) and (
+                            (trader_input == "ha" and is_trader) or (trader_input == "yoq" and not is_trader)
+                        ):
                             all_items.append(item)
 
                     print(f"🔄 {len(all_items)} ta mos keluvchi gift yig‘ildi...")
+
                     cursor = data.get("nextCursor", "")
                     if not cursor:
                         print("✅ Barcha sahifalar tugadi.")
                         break
+
 
                     time.sleep(0.3)
 

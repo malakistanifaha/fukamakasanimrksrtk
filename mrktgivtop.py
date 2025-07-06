@@ -40,7 +40,7 @@ if machine_code in hash_values_list:
     boost_input = input("Channel boost kerakmi? (ha/yoq): ").strip().lower()
     trader_input = input("Active traders uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     sont = int(input("Nechta giveaway qidirsin: "))
-    phonecsv = "ozim1"
+    phonecsv = "ozim"
     
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]

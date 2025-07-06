@@ -3,7 +3,7 @@ import requests
 from licensing.methods import Helpers
 import sys
 # GitHub repository URL
-url = "https://raw.githubusercontent.com/Enshteyn40/crdevice/refs/heads/main/tonnel_3.csv"
+url = "https://raw.githubusercontent.com/Enshteyn40/crdevice/refs/heads/main/tonnel3boost.csv"
 
 # URL'dan CSV faylni yuklab olish
 response = requests.get(url)
@@ -47,8 +47,8 @@ if machine_code in hash_values_list:
     from colorama import Fore, Style, init
     import sys
     init(autoreset=True)
-    file_path_1 = r"C:\\join\\proxyglob.csv"
-    file_path_2 = r"/storage/emulated/0/giv/proxyglob.csv"
+    file_path_1 = r"C:\\join\\proxy.csv"
+    file_path_2 = r"/storage/emulated/0/giv/proxy.csv"
     if os.path.exists(file_path_1):
         with open(file_path_1, 'r') as f:
             ROTATED_PROXY = next(csv.reader(f))[0]
@@ -113,7 +113,7 @@ if machine_code in hash_values_list:
             giveaway_codes = [row[0] for row in csv.reader(open(mrkt_file, 'r', encoding='utf-8')) if row]
         else:
             print(Fore.YELLOW + "Hech qanday mos papka topilamadi (telefonda storage/0  da giv papka yarating) Kompda esa (C/ diskda join papka)")
-        with open('ozim1.csv', 'r') as f:
+        with open('boostlilar.csv', 'r') as f:
             phlist = [row[0] for row in csv.reader(f)]
         
         for indexx, deltaxd in enumerate(phlist):

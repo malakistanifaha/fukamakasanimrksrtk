@@ -50,7 +50,7 @@ mrkt_file = ensure_path_and_file(giv_path, 'MRKTGIVLARid.csv')
 giv_ids_ozim = [row[0] for row in csv.reader(open(mrkt_file, 'r', encoding='utf-8')) if row]
 
 # Telefon raqamlarini o'qish
-with open('ozim1.csv', 'r') as f:
+with open('phone.csv', 'r') as f:
     phones = [row[0] for row in csv.reader(f)]
 
 print(colored(f"Spam bo‘lmagan raqamlar: {len(phones)}", "blue"))

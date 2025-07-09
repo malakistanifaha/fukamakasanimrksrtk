@@ -69,7 +69,7 @@ if machine_code in hash_values_list:
     else:
         print("Hech qanday mos papka topilmadi")
 
-    phonecsv = "ozim"
+    phonecsv = "phone"
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
     print(color('Spam bolmagan raqamlar: ' + str(len(phlist)), "94"))  # ko‘k

@@ -3,6 +3,9 @@ import asyncio
 import csv
 import json
 import os
+from datetime import datetime, timedelta, timezone
+import pytz
+now_utc = datetime.now(timezone.utc)
 import sys
 import requests
 from urllib.parse import unquote
@@ -65,56 +68,45 @@ async def process_account(phone, index):
         await client.start(phone=parsed_phone)
         await client(UpdateStatusRequest(offline=False))
         result = await client(functions.premium.GetMyBoostsRequest())
+
         if not result.my_boosts:
             print(colored(f"[{index}] Raqamda boost yo'q ekan", "yellow"))
             await client.disconnect()
-            return  # keyingi raqamga o‘tadi
-        from datetime import datetime, timedelta, timezone
-        import pytz
-        now_utc = datetime.now(timezone.utc)
+            return
 
-        # Boostlar ichidan eng eski va 24 soatdan o‘tganlarini ajratamiz
+        now_utc = datetime.now(timezone.utc)
         boosts_sorted = sorted(result.my_boosts, key=lambda b: b.date)
 
-        oldest_boost = boosts_sorted[0]  # eng eski
-        oldest_slot = oldest_boost.slot
-        oldest_channel_id = oldest_boost.peer.channel_id
-        oldest_date = oldest_boost.date
-        channel_name = None
-
-        # chats ichidan kanal nomini topish
-        for chat in result.chats:
-            if chat.id == oldest_channel_id:
-                channel_name = chat.title
-                break
-
-        print(f"✅ Eng eski boost slot: {oldest_slot} | Kanal: {channel_name} | Sana (UTC): {oldest_date}")
-
-        # 24 soatdan o‘tgan boostlar
-        count_24h_passed = 0
+        oldest_boost = None
         for b in boosts_sorted:
             if now_utc - b.date >= timedelta(hours=24):
-                count_24h_passed += 1
-                
-        if count_24h_passed == 0:
-            print(colored(f"[{index}] Boostlar hali ochilmagan (24 soat o‘tmagan)", "yellow"))
+                oldest_boost = b
+                break
+
+        if not oldest_boost or not getattr(oldest_boost.peer, 'channel_id', None):
+            print(colored(f"[{index}] Boostlar yo‘q yoki hali ochilmagan", "yellow"))
             await client.disconnect()
-            return  # keyingi raqamga o‘tadi
+            return
 
-        print(f"📋 24 soatdan o‘tgan boostlar soni: {count_24h_passed}")
+        oldest_slot = oldest_boost.slot
+        oldest_channel_id = oldest_boost.peer.channel_id
+        channel_name = next((c.title for c in result.chats if c.id == oldest_channel_id), "NOMA’LUM")
 
+        print(f"✅ Eng eski boost slot: {oldest_slot} | Kanal: {channel_name}")
 
         for giveaway_code in giv_ids_ozim:
             try:
                 bot_entity = await client.get_entity("@main_mrkt_bot")
                 bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
                 bot_app = InputBotAppShortName(bot_id=bot, short_name="app")
+
                 web_view = await client(RequestAppWebViewRequest(
                     peer=bot, app=bot_app, platform="android",
                     write_allowed=True, start_param="1062643042"
                 ))
+
                 auth_url = web_view.url.replace('tgWebAppVersion=7.0', 'tgWebAppVersion=8.0')
-                init_data = unquote(auth_url.split('tgWebAppData=')[1].split('&tgWebAppVersion')[0])
+                init_data = unquote(auth_url.split('tgWebAppData=')[1].split('&')[0])
                 user_json_str = unquote(init_data).split("user=")[1].split("&")[0]
                 user_data = json.loads(user_json_str)
                 photo_url = user_data.get("photo_url")
@@ -131,69 +123,76 @@ async def process_account(phone, index):
                     json={"appId": 1062643042, "data": init_data, "photo": photo_url},
                     headers=headers, timeout=10
                 )
+                auth_res.raise_for_status()
                 token = auth_res.json().get("token")
-                giveaway_id = giveaway_code
+
+                if not token:
+                    print(colored(f"[{index}] Token olinmadi", "red"))
+                    continue
 
                 headers["authorization"] = token
-                data = requests.get(f"https://api.tgmrkt.io/api/v1/giveaways/{giveaway_id}", headers=headers).json()
-                my_tickets_count = data.get("myTicketsCount")
+
+                r = requests.get(f"https://api.tgmrkt.io/api/v1/giveaways/{giveaway_code}", headers=headers)
+                r.raise_for_status()
+                data = r.json()
+                my_tickets_count = int(data.get("myTicketsCount", 0))
 
                 if my_tickets_count > 0:
-                    print(colored("Allaqachon qatnashgan.", "cyan"))
+                    print(colored("⚠️ Allaqachon qatnashgan.", "cyan"))
                     continue
 
                 validations = requests.get(
-                    f"https://api.tgmrkt.io/api/v1/giveaways/check-validations/{giveaway_id}",headers=headers).json().get("channelValidations", [])
-                
+                    f"https://api.tgmrkt.io/api/v1/giveaways/check-validations/{giveaway_code}",
+                    headers=headers).json().get("channelValidations", [])
+
                 for item in validations:
                     channel = item.get("channel")
                     if channel:
                         try:
                             await client(JoinChannelRequest(channel))
+                            print(colored(f"Kanalga qo‘shildi: {channel}", "blue"))
                         except Exception as e:
-                            print(colored(f"Kanalga qo'shishda xatolik: {e}", "red"))
+                            print(colored(f"Kanalga qo‘shishda xatolik: {e}", "red"))
 
                         requests.post(
-                            f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}",
+                            f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_code}",
                             params={"channel": channel, "type": "ChannelMember"}, headers=headers
                         )
+
                 for item in validations:
-                    boostuz = item.get("channel")
-                    if boostuz:
-                        target_channel = boostuz  # siz API-dan olgan kanal username yoki ID
+                    boost_channel = item.get("channel")
+                    if boost_channel:
                         try:
+                            peer = await client.get_entity(boost_channel)
                             result_boost = await client(functions.premium.ApplyBoostRequest(
-                                peer=target_channel,
+                                peer=peer,
                                 slots=[oldest_slot]
                             ))
-                            print(f"🚀 Boost {oldest_slot} slotdan olib, {target_channel} kanalga berildi.")
+                            print(colored(f"🚀 Boost {oldest_slot} {boost_channel} ga berildi.", "green"))
                         except Exception as e:
                             print(colored(f"Boost berishda xatolik: {e}", "red"))
 
-
                         requests.post(
-                            f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_id}",
-                            params={"channel": channel, "type": "ChannelBoost"}, headers=headers
+                            f"https://api.tgmrkt.io/api/v1/giveaways/start-validation/{giveaway_code}",
+                            params={"channel": boost_channel, "type": "ChannelBoost"}, headers=headers
                         )
-                        
-                response = requests.post(
-                    f"https://api.tgmrkt.io/api/v1/giveaways/buy-tickets/{giveaway_id}",
+
+                resp = requests.post(
+                    f"https://api.tgmrkt.io/api/v1/giveaways/buy-tickets/{giveaway_code}",
                     params={"count": 1}, headers=headers
                 )
-                try:
-                    data = response.json()
-                    if isinstance(data, list) and data:
-                        print(color("GIVEAWAYGA MUVAFFAQIYATLI QATNASHDI", "92"))  # yashil
-                    else:
-                        print(color("GIVEAWAYA OLDIN QATNASHGAN QATNASHMAGAN BOSA XORAMI KANALI BAN BERAYABDI", "93")) 
-                except Exception as e:
-                    print(color("Pizdes sorob yubotishda xatolik", "91"))  # qizil
+
+                if resp.ok and isinstance(resp.json(), list) and resp.json():
+                    print(colored("✅ Giveawayga muvaffaqiyatli qatnashdi", "green"))
+                else:
+                    print(colored("⚠️ Qatnashishning iloji bo‘lmadi yoki oldin qatnashgan", "yellow"))
+
             except Exception as e:
-                print(colored(f"Giveaway xatosi: {e}", "red"))
+                print(colored(f"🎁 Giveaway xatosi: {e}", "red"))
 
         await client.disconnect()
     except Exception as e:
-        print(colored(f"[{index}] Xatolik: {e}", "red"))
+        print(colored(f"[{index}] Umumiy xatolik: {e}", "red"))
 
 async def main():
     batch_size = 1

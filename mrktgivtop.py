@@ -33,14 +33,14 @@ if machine_code in hash_values_list:
     from telethon.tl.types import InputBotAppShortName
     import time
 
-    print(color("Oxirgi kod yangilangan vaqti 07.06.2025 9:10 PM", "95"))
+    print(color("Oxirgi kod yangilangan vaqti 05.08.2025 9:10 PM", "95"))
     print(color("Ozim.csv yaratilib faqat 1 ta raqam yozilad", "95"))
     free_only_input = input("Faqat tekin giftlarni topaymi? (ha/yoq): ").strip().lower()
     premium_input = input("Premium uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     boost_input = input("Channel boost kerakmi? (ha/yoq): ").strip().lower()
     trader_input = input("Active traders uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     sont = int(input("Nechta giveaway qidirsin: "))
-    phonecsv = "ozim"
+    phonecsv = "ozim1"
     
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
@@ -95,9 +95,12 @@ if machine_code in hash_values_list:
 
                 response = requests.post("https://api.tgmrkt.io/api/v1/auth", json=jsondata, headers=headers, timeout=10)
                 token = response.json().get("token")
+                if not token:
+                    print("❌ Token olinmadi. Auth javobi:", response.text)
+                    return
 
                 headers["authorization"] = token
-                base_url = "https://api.tgmrkt.io/api/v1/giveaways"
+                base_url = "https://api.tgmrkt.io/api/v1/giveaways?type=Free&count=20&cursor=&ordering=EndingTimeWithBadge&isActive=true"
                 all_items = []
                 cursor = ""
 
@@ -105,8 +108,11 @@ if machine_code in hash_values_list:
                     params = {
                         "type": "Free",
                         "count": 20,
-                        "cursor": cursor
+                        "ordering": "EndingTimeWithBadge",
+                        "isActive": "true"
                     }
+                    if cursor:  # faqat cursor bo‘lsa, qo‘shamiz
+                        params["cursor"] = cursor
 
                     response = requests.get(base_url, headers=headers, params=params)
                     if response.status_code != 200:

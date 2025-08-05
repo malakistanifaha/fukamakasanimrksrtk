@@ -21,17 +21,17 @@ print(machine_code)
 
 if machine_code in hash_values_list:
     import json
-    from telethon.tl.functions.channels import JoinChannelRequest
     import csv
+    import time
+    from telethon.tl.functions.channels import JoinChannelRequest
     from telethon import types, utils, errors
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timezone
     from urllib.parse import unquote
     from telethon.sync import TelegramClient
     from telethon.tl.functions.account import UpdateStatusRequest
     from telethon.tl.types import InputUser
     from telethon.tl.functions.messages import RequestAppWebViewRequest
     from telethon.tl.types import InputBotAppShortName
-    import time
 
     print(color("Oxirgi kod yangilangan vaqti 05.08.2025 9:10 PM", "95"))
     print(color("Ozim.csv yaratilib faqat 1 ta raqam yozilad", "95"))
@@ -41,19 +41,16 @@ if machine_code in hash_values_list:
     trader_input = input("Active traders uchun giftlarni topaymi? (ha/yoq): ").strip().lower()
     sont = int(input("Nechta giveaway qidirsin: "))
     phonecsv = "ozim1"
-    
+
     with open(f'{phonecsv}.csv', 'r') as f:
         phlist = [row[0] for row in csv.reader(f)]
 
     print(color('Spam bo‘lmagan raqamlar: ' + str(len(phlist)), "94"))
-    indexx = 0
 
     for deltaxd in phlist:
         try:
-            indexx += 1
-            phone = deltaxd
-            print(color(f"Login: {phone}", "92"))
             phone = utils.parse_phone(deltaxd)
+            print(color(f"Login: {phone}", "92"))
             api_id = 22962676
             api_hash = '543e9a4d695fe8c6aa4075c9525f7c57'
             client = TelegramClient(f"sessions/{phone}", api_id, api_hash)
@@ -100,7 +97,7 @@ if machine_code in hash_values_list:
                     return
 
                 headers["authorization"] = token
-                base_url = "https://api.tgmrkt.io/api/v1/giveaways?type=Free&count=20&cursor=&ordering=EndingTimeWithBadge&isActive=true"
+                base_url = "https://api.tgmrkt.io/api/v1/giveaways"
                 all_items = []
                 cursor = ""
 
@@ -111,7 +108,7 @@ if machine_code in hash_values_list:
                         "ordering": "EndingTimeWithBadge",
                         "isActive": "true"
                     }
-                    if cursor:  # faqat cursor bo‘lsa, qo‘shamiz
+                    if cursor:
                         params["cursor"] = cursor
 
                     response = requests.get(base_url, headers=headers, params=params)
@@ -122,57 +119,32 @@ if machine_code in hash_values_list:
                     data = response.json()
                     items = data.get("items", [])
 
-                    all_items = []  # ← bu while dan oldin bo‘ladi
-                    cursor = ""
+                    for item in items:
+                        is_premium = item.get("isForPremium", False)
+                        is_boost = item.get("isChanelBoostRequired", False)
+                        is_trader = item.get("isForActiveTraders", False)
 
-                    while len(all_items) < sont:
-                        params = {
-                            "type": "Free",
-                            "count": 20,
-                            "cursor": cursor
-                        }
-
-                        response = requests.get(base_url, headers=headers, params=params)
-                        if response.status_code != 200:
-                            print(f"❌ Xatolik: {response.status_code}")
-                            break
-
-                        data = response.json()
-                        items = data.get("items", [])
-
-                        # bu yerni olib tashlang:
-                        # all_items = []
-
-                        for item in items:
-                            is_premium = item.get("isForPremium", False)
-                            is_boost = item.get("isChanelBoostRequired", False)
-                            is_trader = item.get("isForActiveTraders", False)
-
-                            # faqat tekin kerak bo‘lsa
-                            if free_only_input == "ha":
-                                if not is_premium and not is_boost and not is_trader:
-                                    all_items.append(item)
-                                continue
-
-                            # boshqa shartlar
-                            if (
-                                (premium_input == "ha" and is_premium) or (premium_input == "yoq" and not is_premium)
-                            ) and (
-                                (boost_input == "ha" and is_boost) or (boost_input == "yoq" and not is_boost)
-                            ) and (
-                                (trader_input == "ha" and is_trader) or (trader_input == "yoq" and not is_trader)
-                            ):
+                        if free_only_input == "ha":
+                            if not is_premium and not is_boost and not is_trader:
                                 all_items.append(item)
+                            continue
 
-                        print(f"🔄 {len(all_items)} ta mos keluvchi gift yig‘ildi...")
+                        if (
+                            (premium_input == "ha" and is_premium) or (premium_input == "yoq" and not is_premium)
+                        ) and (
+                            (boost_input == "ha" and is_boost) or (boost_input == "yoq" and not is_boost)
+                        ) and (
+                            (trader_input == "ha" and is_trader) or (trader_input == "yoq" and not is_trader)
+                        ):
+                            all_items.append(item)
 
-                        cursor = data.get("nextCursor", "")
-                        if not cursor:
-                            print("✅ Barcha sahifalar tugadi.")
-                            break
+                    print(f"🔄 {len(all_items)} ta mos keluvchi gift yig‘ildi...")
+                    cursor = data.get("nextCursor", "")
+                    if not cursor:
+                        print("✅ Barcha sahifalar tugadi.")
+                        break
 
-                        time.sleep(0.3)
-
+                    time.sleep(0.3)
 
                 all_items.sort(key=lambda x: x.get("endAt", ""))
 

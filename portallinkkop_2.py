@@ -112,8 +112,7 @@ if machine_code in hash_values_list:
                     try:
                         group_size = int(group_size_str)
                         acc_idx = indexx + 1
-                        current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
-
+                        current_inviter_id = 1062643042
                         bot_entity = await client.get_entity("@giftsgiveawaybot")
                         bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
                         bot_app = InputBotAppShortName(bot_id=bot, short_name="start")

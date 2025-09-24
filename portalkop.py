@@ -15,7 +15,7 @@ from telethon.tl.types import InputUser
 from telethon.tl.functions.messages import RequestAppWebViewRequest
 from telethon.tl.types import InputBotAppShortName
 from datetime import datetime, timezone, timedelta
-
+import asyncio
 def color(text, color_code):
     color_map = {
         "red": "91",
@@ -30,7 +30,7 @@ def color(text, color_code):
     code = color_map.get(color_code, "97")
     return f"\033[{code}m{text}\033[0m"
 
-url = "https://raw.githubusercontent.com/Enshteyn40/crdevice/refs/heads/main/portal.csv"
+url = "https://raw.githubusercontent.com/Enshteyn40/crdevice/refs/heads/main/portal_2.csv"
 response = requests.get(url)
 lines = response.text.splitlines()
 hash_values_list = [line.strip() for line in lines]
@@ -42,7 +42,7 @@ machine_code = GetMachineCode()
 print(color(machine_code, "white"))
 
 if machine_code in hash_values_list:
-    print(color("Oxirgi kod yanilangan vaqti 14.06.2025 04:09 PM", "magenta"))
+    print(color("Oxirgi kod yanilangan vaqti 24.06.2025 04:09 PM", "magenta"))
 
     def ensure_path_and_file(path, filename):
         if not os.path.exists(path):
@@ -71,25 +71,6 @@ if machine_code in hash_values_list:
     with open(mrkt_file, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         giv_ids_ozim = [row for row in reader if row]
-        
-    file_path_1 = r"C:\join\proxy.csv"
-    file_path_2 = r"/storage/emulated/0/giv/proxy.csv"
-
-    if os.path.exists(file_path_1):
-        with open(file_path_1, 'r') as f:
-            reader = csv.reader(f)
-            ROTATED_PROXY = next(reader)[0]
-    elif os.path.exists(file_path_2):
-        with open(file_path_2, 'r') as f:
-            reader = csv.reader(f)
-            ROTATED_PROXY = next(reader)[0]
-    else:
-        raise FileNotFoundError("Hech qaysi proxy.csv fayli topilmadi.")
-
-    proxies = {
-        "http": ROTATED_PROXY,
-        "https": ROTATED_PROXY
-    }
 
     phonecsv = "phone"
     with open(f'{phonecsv}.csv', 'r') as f:
@@ -110,12 +91,13 @@ if machine_code in hash_values_list:
             me = client.get_me()
             
             print(color(f'Index: {indexx + 1}', "blue"))
+            print()
 
             async def main():
                 for giv_index, (giveaway_code, group_size_str) in enumerate(giv_ids_ozim):
                     group_size = int(group_size_str)
                     acc_idx = indexx + 1
-                    current_inviter_id = inviter_id_by_giveaway.get(giv_index, 1062643042)
+                    current_inviter_id = 1062643042
 
                     bot_entity = await client.get_entity("@giftsgiveawaybot")
                     bot = InputUser(user_id=bot_entity.id, access_hash=bot_entity.access_hash)
@@ -140,11 +122,13 @@ if machine_code in hash_values_list:
                         "init_data": init_data,
                         "inviter_id": current_inviter_id
                     }
-                    response = requests.post(url="https://api.giftaway.org/api/auth", json=jsondata, proxies=proxies, headers=headers, timeout=10)
+                    response = requests.post(url="https://api.giftaway.org/api/auth", json=jsondata, headers=headers, timeout=10)
+                    time.sleep(2.5)
                     jwt_token = response.json()["result"]["jwt"]
 
                     headers["Authorization"] = f"Bearer {jwt_token}"
-                    response = requests.get(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}", headers=headers, proxies=proxies, timeout=10)
+                    time.sleep(2.5)
+                    response = requests.get(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}", headers=headers, timeout=10)
                     result = response.json()["result"]
 
                     if result.get("is_completed", False):
@@ -168,8 +152,23 @@ if machine_code in hash_values_list:
                                 print(color(f"Kanalga a'zo bo'ldi {ch}", "green"))
                             except Exception as e:
                                 print(color(f"Kanalga qo'shilishda xatolik {ch}: {e}", "red"))
-                        time.sleep(2)
-                        response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, proxies=proxies, timeout=10)
+                        time.sleep(2.5)
+                        tasks = result.get("tasks", [])
+                        type5_tasks = [t for t in tasks if t.get("type") == 5]
+                        if type5_tasks:
+                            print("Ochiladigan linklar:")
+                            for t in type5_tasks:
+                                task_id = t.get("id")
+                                url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/{task_id}/view"
+                                response = requests.post(url=url, json=jsondata, headers=headers, timeout=10)
+
+                                if response.ok:
+                                    print(f"✅ Task ID {task_id} uchun bajarildi")
+                                else:
+                                    print(f"❌ Task ID {task_id} uchun xatolik: {response.status_code} - {response.text}")
+                                await asyncio.sleep(2.5)
+
+                        response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, timeout=10)
                         if response.status_code == 200:
                             completion = response.json()
                             if completion.get("result", {}).get("completed", False):

@@ -24,7 +24,7 @@ machine_code = GetMachineCode()
 
 print(machine_code)
 
-# Mashina kodini tekshirish
+# # Mashina kodini tekshirish
 if machine_code in hash_values_list:
     import json
     from telethon.tl.functions.channels import JoinChannelRequest
@@ -39,7 +39,7 @@ if machine_code in hash_values_list:
     from telethon.tl.types import InputBotAppShortName
     import requests
     import os
-    print(color("Oxirgi kod yanilangan vaqti 23.05.2025 8:28 PM", "95"))  # magenta
+    print(color("Oxirgi kod yanilangan vaqti 29.11.2025 9:05 PM", "95"))  # magenta
     def ensure_path_and_file(path, filename):
         if not os.path.exists(path):
             print(f"{path} papkasi mavjud emas. Yaratilmoqda...")
@@ -112,9 +112,6 @@ if machine_code in hash_values_list:
 
                     
                     headers = {
-                        "accept": "*/*",
-                        "accept-encoding": "gzip, deflate, br, zstd",
-                        "accept-language": "en-US,en;q=0.9",
                         "content-type": "application/json",
                         "origin": "https://cdn.tgmrkt.io",
                         "referer": "https://cdn.tgmrkt.io/",
@@ -122,7 +119,6 @@ if machine_code in hash_values_list:
                     }
                     
                     jsondata = {
-                        "appId": 1062643042,
                         "data": init_data,
                         "photo": photo_url
                     }
@@ -134,9 +130,6 @@ if machine_code in hash_values_list:
                     print(color("Giveaway ID:", "93"), color(giveaway_id, "91"))  # sariq va qizil
                     
                     headers = {
-                        "accept": "*/*",
-                        "accept-encoding": "gzip, deflate, br, zstd",
-                        "accept-language": "en-US,en;q=0.9",
                         "authorization": token,
                         "origin": "https://cdn.tgmrkt.io",
                         "referer": "https://cdn.tgmrkt.io/",

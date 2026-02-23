@@ -128,8 +128,8 @@ if machine_code in hash_values_list:
 
                         headers = {
                             "Content-Type": "application/json",
-                            "Origin": "https://giftaway.org",
-                            "Referer": "https://giftaway.org/",
+                            "Origin": "https://giftsaway.tg",
+                            "Referer": "https://giftsaway.tg/",
                             "User-Agent": "Mozilla/5.0"
                         }
                         jsondata = {
@@ -137,12 +137,12 @@ if machine_code in hash_values_list:
                             "inviter_id": current_inviter_id
                         }
 
-                        response = requests.post(url="https://api.giftaway.org/api/auth", json=jsondata, proxies=proxies, headers=headers, timeout=10)
+                        response = requests.post(url="https://giftsaway.tg/api/auth", json=jsondata, proxies=proxies, headers=headers, timeout=10)
                         jwt_token = response.json()["result"]["jwt"]
                         await asyncio.sleep(0.1)
 
                         headers["Authorization"] = f"Bearer {jwt_token}"
-                        response = requests.get(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}", proxies=proxies, headers=headers, timeout=10)
+                        response = requests.get(url=f"https://giftsaway.tg/api/giveaway/{giveaway_code}", proxies=proxies, headers=headers, timeout=10)
                         result = response.json()["result"]
                         await asyncio.sleep(0.1)
 
@@ -174,7 +174,7 @@ if machine_code in hash_values_list:
                                 for t in type5_tasks:
                                     task_id = t.get("id")
                                     await asyncio.sleep(0.1)
-                                    url = f"https://api.giftaway.org/api/giveaway/{giveaway_code}/link/{task_id}/view"
+                                    url = f"https://giftsaway.tg/api/giveaway/{giveaway_code}/link/{task_id}/view"
                                     response = requests.post(url=url, json=jsondata, proxies=proxies, headers=headers, timeout=10)
 
                                     if response.ok:
@@ -183,7 +183,7 @@ if machine_code in hash_values_list:
                                         print(f"❌ Task ID {task_id} uchun xatolik: {response.status_code} - {response.text}")
                                     await asyncio.sleep(0.1)
 
-                            response = requests.post(url=f"https://api.giftaway.org/api/giveaway/{giveaway_code}/complete", headers=headers, proxies=proxies, timeout=10)
+                            response = requests.post(url=f"https://giftsaway.tg/api/giveaway/{giveaway_code}/complete", headers=headers, proxies=proxies, timeout=10)
                             if response.status_code == 200:
                                 completion = response.json()
                                 if completion.get("result", {}).get("completed", False):

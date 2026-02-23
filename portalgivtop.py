@@ -108,27 +108,27 @@ for indexx, deltaxd in enumerate(phlist):
 
             headers = {
                 "Content-Type": "application/json",
-                "Origin": "https://giftaway.org",
-                "Referer": "https://giftaway.org/",
+                "Origin": "https://giftsaway.tg",
+                "Referer": "https://giftsaway.tg/",
                 "User-Agent": "Mozilla/5.0"
             }
 
             jsondata = {"init_data": init_data, "inviter_id": 0}
-            response = retry_request("POST", "https://api.giftaway.org/api/auth",
+            response = retry_request("POST", "https://giftsaway.tg/api/auth",
                                     json=jsondata, proxies=proxies, headers=headers, timeout=10)
             jwt_token = response.json()["result"]["jwt"]
             headers["Authorization"] = f"Bearer {jwt_token}"
 
             toshkent_tz = timezone(timedelta(hours=5))
             if indexx == 0:
-                list_url = "https://api.giftaway.org/api/giveaway/list/5?page=1&count=100"
+                list_url = "https://giftsaway.tg/api/giveaway/list/5?page=1&count=100"
                 response = retry_request("GET", list_url, headers=headers, proxies=proxies, timeout=10)
                 data = response.json()
 
                 for g in data["result"]["giveaways"]:
                     gid = g["id"]
                     try:
-                        detail = retry_request("GET", f"https://api.giftaway.org/api/giveaway/{gid}",
+                        detail = retry_request("GET", f"https://giftsaway.tg/api/giveaway/{gid}",
                                             headers=headers, proxies=proxies, timeout=10)
                         r = detail.json()["result"]
                         end_time = datetime.fromisoformat(r["ending_at"]).astimezone(toshkent_tz)

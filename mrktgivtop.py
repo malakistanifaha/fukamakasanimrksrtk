@@ -33,7 +33,7 @@ if machine_code in hash_values_list:
     from telethon.tl.functions.messages import RequestAppWebViewRequest
     from telethon.tl.types import InputBotAppShortName
 
-    print(color("Oxirgi kod yangilangan vaqti 05.08.2025 9:10 PM", "95"))
+    print(color("Oxirgi kod yangilangan vaqti 26.05.2026 01:10 PM", "95"))
     print(color("Ozim.csv yaratilib faqat 1 ta raqam yozilad", "95"))
     free_only_input = input("Faqat tekin giftlarni topaymi? (ha/yoq): ").strip().lower()
     premium_input = input("Premium uchun giftlarni topaymi? (ha/yoq): ").strip().lower()

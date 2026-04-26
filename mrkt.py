@@ -131,6 +131,7 @@ if machine_code in hash_values_list:
                     
                     headers = {
                         "authorization": token,
+                        "cookie": f"access_token={token}",
                         "origin": "https://cdn.tgmrkt.io",
                         "referer": "https://cdn.tgmrkt.io/",
                         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0"

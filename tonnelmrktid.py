@@ -127,6 +127,7 @@ async def process_account(phone, index):
                     continue
 
                 headers["authorization"] = token
+                headers["cookie"] = f"access_token={token}"
                 giveaway_id = giveaway_code
 
                 # Mening holatim

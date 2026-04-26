@@ -97,6 +97,7 @@ if machine_code in hash_values_list:
                     return
 
                 headers["authorization"] = token
+                headers["cookie"] = f"access_token={token}"
                 base_url = "https://api.tgmrkt.io/api/v1/giveaways"
                 all_items = []
                 cursor = ""

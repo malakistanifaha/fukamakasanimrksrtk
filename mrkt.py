@@ -39,7 +39,7 @@ if machine_code in hash_values_list:
     from telethon.tl.types import InputBotAppShortName
     import requests
     import os
-    print(color("Oxirgi kod yanilangan vaqti 29.11.2025 9:05 PM", "95"))  # magenta
+    print(color("Oxirgi kod yanilangan vaqti 26.04.2026 01:11 AM", "95"))  # magenta
     def ensure_path_and_file(path, filename):
         if not os.path.exists(path):
             print(f"{path} papkasi mavjud emas. Yaratilmoqda...")

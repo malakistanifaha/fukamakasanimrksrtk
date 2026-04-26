@@ -131,6 +131,7 @@ async def process_account(phone, index):
                     continue
 
                 headers["authorization"] = token
+                headers["cookie"] = f"access_token={token}"
 
                 r = requests.get(f"https://api.tgmrkt.io/api/v1/giveaways/{giveaway_code}", headers=headers)
                 r.raise_for_status()
